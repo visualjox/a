@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The Ad Autopsy Kit — Vishal Joshi</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #080808;
+    --off-white: #F8F8F6;
+    --silver: #C8C8C2;
+    --grey: #b0ada8;
+    --yellow: #fddb4c;
+    --border: #1a1a1a;
+    --card: #0d0d0d;
+    --red: #c0392b;
+    --green: #27ae60;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 16px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(8,8,8,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--silver); text-decoration: none; }
+  .nav-cta { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--black); background: var(--yellow); padding: 10px 22px; border-radius: 2px; text-decoration: none; transition: background 0.2s; }
+  .nav-cta:hover { background: #e8c73a; }
+
+  /* COUNTER */
+  .counter-float {
+    position: fixed; bottom: 28px; right: 28px; z-index: 90;
+    background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--yellow);
+    padding: 16px 20px; display: flex; flex-direction: column; gap: 4px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6); min-width: 160px;
+  }
+  .counter-num { font-family: var(--serif); font-size: 38px; color: var(--yellow); letter-spacing: -2px; line-height: 1; }
+  .counter-label { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--grey); opacity: 0.6; }
+
+  /* FADE */
+  .fu { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .fu.vis { opacity: 1; transform: translateY(0); }
+  .fu.d1 { transition-delay: 0.1s; }
+  .fu.d2 { transition-delay: 0.2s; }
+
+  /* LAYOUT */
+  .divider { width: 100%; max-width: 860px; margin: 0 auto; height: 1px; background: var(--border); }
+  .section { padding: 80px 40px; max-width: 860px; margin: 0 auto; text-align: center; }
+  .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--grey); opacity: 0.5; display: block; margin-bottom: 14px; }
+  .section-title { font-family: var(--sans); font-size: clamp(26px, 4vw, 44px); font-weight: 700; letter-spacing: -1.5px; line-height: 1.1; color: var(--off-white); margin-bottom: 12px; }
+  .section-title em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--yellow); }
+  .section-sub { font-size: 15px; font-weight: 300; color: var(--grey); line-height: 1.8; max-width: 580px; margin: 0 auto; }
+
+  .btn { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 16px 36px; border-radius: 2px; text-decoration: none; cursor: pointer; border: none; transition: background 0.2s; }
+  .btn-yellow { background: var(--yellow); color: var(--black); }
+  .btn-yellow:hover { background: #e8c73a; }
+  .btn-full { width: 100%; text-align: center; display: block; }
+
+  /* HERO */
+  .hero { padding: 140px 40px 80px; max-width: 860px; margin: 0 auto; text-align: center; }
+  .hero-eyebrow { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--black); background: var(--yellow); padding: 5px 14px; margin-bottom: 28px; }
+  .hero-headline { font-family: var(--sans); font-size: clamp(30px, 5vw, 54px); font-weight: 700; letter-spacing: -2px; line-height: 1.05; color: var(--off-white); margin-bottom: 20px; }
+  .hero-sub { font-size: 16px; font-weight: 300; color: var(--grey); max-width: 540px; line-height: 1.8; margin: 0 auto 8px; }
+  .hero-sub-note { font-size: 13px; font-weight: 300; color: var(--grey); opacity: 0.5; margin-bottom: 36px; font-style: italic; }
+
+  /* DIAGNOSIS — 5 vertical 9:16 video placeholders */
+  .diagnosis-list { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .diagnosis-item {
+    background: var(--card); border: 1px solid var(--border);
+    aspect-ratio: 9/16; width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; position: relative; overflow: hidden;
+  }
+  .diagnosis-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .diagnosis-item-ph {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  }
+  .diagnosis-ph-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey); opacity: 0.3; }
+  .diagnosis-play {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1px solid rgba(253,219,76,0.3); display: flex; align-items: center; justify-content: center;
+    background: rgba(253,219,76,0.05);
+  }
+
+  /* THINKING — Elfsight embed */
+  .elfsight-wrap { margin-top: 40px; min-height: 300px; }
+
+  /* FRAMEWORK */
+  .dim-list { list-style: none; margin-top: 40px; display: flex; flex-direction: column; gap: 0; text-align: left; }
+  .dim-item { display: flex; gap: 20px; align-items: flex-start; padding: 20px 0; border-bottom: 1px solid var(--border); transition: padding-left 0.2s; }
+  .dim-item:first-child { border-top: 1px solid var(--border); }
+  .dim-item:hover { padding-left: 6px; }
+  .dim-num { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--yellow); opacity: 0.6; flex-shrink: 0; min-width: 24px; padding-top: 2px; }
+  .dim-title { font-size: 14px; font-weight: 600; color: var(--off-white); margin-bottom: 3px; letter-spacing: -0.2px; }
+  .dim-body { font-size: 12px; font-weight: 300; color: var(--grey); line-height: 1.65; }
+  .dim-mech { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--yellow); opacity: 0.5; margin-bottom: 4px; display: block; }
+
+  /* BEFORE AFTER CAROUSEL */
+  .ba-carousel-wrap { margin-top: 40px; position: relative; overflow: hidden; }
+  .ba-carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-behavior: smooth; }
+  .ba-carousel-track::-webkit-scrollbar { display: none; }
+  .ba-slide { flex-shrink: 0; width: 100%; scroll-snap-align: start; background: var(--card); border: 1px solid var(--border); padding: 20px; }
+  .ba-slide-label { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--grey); opacity: 0.4; margin-bottom: 12px; display: block; text-align: left; }
+  .ba-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ba-col-head { font-size: 8px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 5px 8px; margin-bottom: 8px; display: block; }
+  .ba-col-head.before { color: var(--red); background: rgba(192,57,43,0.07); border: 1px solid rgba(192,57,43,0.18); }
+  .ba-col-head.after { color: var(--green); background: rgba(39,174,96,0.07); border: 1px solid rgba(39,174,96,0.18); }
+  .ba-img { background: #080808; border: 1px solid var(--border); aspect-ratio: 4/5; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+  .ba-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .ba-img-ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .ba-img-ph-label { font-size: 7px; letter-spacing: 1px; text-transform: uppercase; color: var(--grey); opacity: 0.2; }
+  .ba-nav { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 20px; }
+  .ba-btn { background: none; border: 1px solid var(--border); color: var(--grey); width: 36px; height: 36px; cursor: pointer; font-size: 14px; transition: border-color 0.2s, color 0.2s; border-radius: 2px; }
+  .ba-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .ba-dots { display: flex; justify-content: center; gap: 6px; }
+  .ba-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border); transition: background 0.2s; cursor: pointer; }
+  .ba-dot.active { background: var(--yellow); }
+
+  /* GUARANTEE */
+  .guarantee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 40px; }
+  .guarantee-card { background: var(--card); padding: 28px 24px; text-align: left; }
+  .guarantee-icon { font-size: 20px; margin-bottom: 12px; display: block; }
+  .guarantee-title { font-size: 14px; font-weight: 600; color: var(--off-white); margin-bottom: 8px; letter-spacing: -0.2px; }
+  .guarantee-body { font-size: 13px; font-weight: 300; color: var(--grey); line-height: 1.7; }
+
+  /* INCLUSIONS */
+  .inc-list { list-style: none; margin-top: 40px; display: flex; flex-direction: column; gap: 0; text-align: left; }
+  .inc-item { display: flex; gap: 20px; align-items: flex-start; padding: 22px 0; border-bottom: 1px solid var(--border); transition: padding-left 0.2s; }
+  .inc-item:first-child { border-top: 1px solid var(--border); }
+  .inc-item:hover { padding-left: 6px; }
+  .inc-arrow { color: var(--yellow); opacity: 0.4; font-size: 13px; flex-shrink: 0; padding-top: 3px; }
+  .inc-title { font-size: 14px; font-weight: 500; color: var(--off-white); margin-bottom: 3px; }
+  .inc-desc { font-size: 12px; font-weight: 300; color: var(--grey); line-height: 1.6; }
+
+  /* FINAL CTA */
+  .cta-card { max-width: 480px; margin: 40px auto 0; background: var(--card); border: 1px solid rgba(253,219,76,0.12); border-radius: 2px; padding: 40px; text-align: center; }
+  .cta-card-title { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--silver); margin-bottom: 4px; }
+  .cta-card-sub { font-size: 11px; color: var(--grey); opacity: 0.4; margin-bottom: 24px; font-weight: 300; }
+  .cta-price { font-family: var(--serif); font-size: 64px; color: var(--yellow); letter-spacing: -3px; line-height: 1; display: block; margin-bottom: 4px; }
+  .cta-price-note { font-size: 10px; color: var(--grey); opacity: 0.35; letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .cta-scarcity { font-size: 12px; color: var(--yellow); opacity: 0.8; font-weight: 500; margin-bottom: 24px; display: block; }
+  .cta-inc { list-style: none; text-align: left; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .cta-inc-item { display: flex; gap: 10px; font-size: 13px; font-weight: 300; color: var(--grey); opacity: 0.75; line-height: 1.5; }
+  .cta-dash { color: var(--yellow); opacity: 0.5; flex-shrink: 0; font-family: var(--serif); font-style: italic; }
+  .cta-footer-note { font-size: 11px; color: var(--grey); opacity: 0.3; margin-top: 14px; font-weight: 300; }
+
+  /* FAQ */
+  .faq-list { list-style: none; margin-top: 40px; text-align: left; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-q { width: 100%; background: none; border: none; color: var(--off-white); font-family: var(--sans); font-size: 14px; font-weight: 500; text-align: left; padding: 20px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .faq-q:hover { color: var(--yellow); }
+  .faq-icon { width: 18px; height: 18px; flex-shrink: 0; position: relative; opacity: 0.35; }
+  .faq-icon::before, .faq-icon::after { content: ''; position: absolute; background: var(--silver); transition: transform 0.3s, opacity 0.3s; }
+  .faq-icon::before { width: 10px; height: 1px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .faq-icon::after { width: 1px; height: 10px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .faq-item.open .faq-icon::after { transform: translate(-50%,-50%) rotate(90deg); opacity: 0; }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+  .faq-item.open .faq-a { max-height: 300px; }
+  .faq-a-inner { padding-bottom: 20px; font-size: 13px; font-weight: 300; color: var(--grey); line-height: 1.75; max-width: 580px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 28px 40px; max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .footer-brand { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--silver); opacity: 0.5; }
+  .footer-copy { font-size: 11px; color: var(--grey); opacity: 0.25; }
+
+  @media (max-width: 680px) {
+    nav { padding: 14px 20px; }
+    .hero { padding: 110px 20px 60px; }
+    .section { padding: 60px 20px; }
+    .guarantee-grid { grid-template-columns: 1fr; }
+    .ba-cols { grid-template-columns: 1fr; }
+    .counter-float { bottom: 16px; right: 16px; padding: 12px 16px; min-width: 130px; }
+    .cta-card { padding: 28px 20px; }
+    footer { padding: 20px; flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://writturns.com" class="nav-brand">Writturns</a>
+  <a href="YOUR_TOPMATE_LINK" target="_blank" class="nav-cta">Get Instant Access</a>
+</nav>
+
+<div class="counter-float">
+  <span class="counter-num">119</span>
+  <span class="counter-label">Founders already signed up</span>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="fu">
+    <span class="hero-eyebrow">The Ad Autopsy Kit</span>
+    <h1 class="hero-headline">Stop wasting 70% of your ad budget on creatives that were broken before you launched them.</h1>
+    <p class="hero-sub">A creative audit framework based on consumer psychology that tells you exactly why your creative is failing — inside 2 minutes.</p>
+    <p class="hero-sub-note">(Before you spend any money on it)</p>
+    <a href="YOUR_TOPMATE_LINK" target="_blank" class="btn btn-yellow">Get the Ad Autopsy Kit</a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DIAGNOSIS — 5 vertical video placeholders -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">The diagnosis</span>
+    <h2 class="section-title">Original CTR vs <em>Diagnosed CTR.</em></h2>
+    <p class="section-sub">Five real ads. What they were actually getting versus what the audit predicted.</p>
+  </div>
+  <div class="diagnosis-list fu d1">
+
+    <div class="diagnosis-item">
+      <video src="IMG_2740.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+    </div>
+    <div class="diagnosis-item">
+      <video src="IMG_2741.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+    </div>
+    <div class="diagnosis-item">
+      <video src="IMG_2742.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+    </div>
+    <div class="diagnosis-item">
+      <video src="IMG_2744.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+    </div>
+    <div class="diagnosis-item">
+      <video src="IMG_2746.mp4" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- THINKING — Elfsight Instagram feed -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">The thinking</span>
+    <h2 class="section-title"><em>Framework in action.</em></h2>
+    <p class="section-sub">Every video on admasterjojo is this framework running on a real ad. Publicly. Before this kit existed.</p>
+  </div>
+  <div class="elfsight-wrap fu d1">
+    <script src="https://elfsightcdn.com/platform.js" async></script>
+    <div class="elfsight-app-4bf7b0a7-589b-498b-982e-fc4d8d0ab72f" data-elfsight-app-lazy></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FRAMEWORK -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">The framework</span>
+    <h2 class="section-title">10 signals. Every one<br/><em>anchored in science.</em></h2>
+    <p class="section-sub">Not aesthetic opinions. Documented mechanisms of how the human brain processes advertising. Each signal scores something specific and tells you exactly what it is costing you.</p>
+  </div>
+  <ul class="dim-list fu d1">
+    <li class="dim-item"><span class="dim-num">01</span><div><span class="dim-mech">Selective Attention</span><div class="dim-title">The Interrupt</div><div class="dim-body">The brain filters 11 million bits of input per second and consciously registers 40. Does this creative force the brain to stop — or pass through completely unregistered?</div></div></li>
+    <li class="dim-item"><span class="dim-num">02</span><div><span class="dim-mech">Affective Priming</span><div class="dim-title">The Opening Emotion</div><div class="dim-body">Emotion fires 150 milliseconds before language. What does the viewer feel before they read a single word — and is that emotion moving them toward the product or away?</div></div></li>
+    <li class="dim-item"><span class="dim-num">03</span><div><span class="dim-mech">Self-Concept Theory</span><div class="dim-title">The Mirror</div><div class="dim-body">People do not buy products. They buy versions of themselves. Does this creative speak to a specific identity — or just a demographic?</div></div></li>
+    <li class="dim-item"><span class="dim-num">04</span><div><span class="dim-mech">Cognitive Recognition</span><div class="dim-title">The Truth</div><div class="dim-body">A sharp insight triggers dopamine release and immediate trust. Is the truth in this ad proprietary — or can any competitor run it by swapping their logo?</div></div></li>
+    <li class="dim-item"><span class="dim-num">05</span><div><span class="dim-mech">Zeigarnik Effect</span><div class="dim-title">The Open Loop</div><div class="dim-body">The brain has a deep compulsion toward closure. Does this creative open a genuine cognitive loop the viewer must close — or is it declarative and instantly forgettable?</div></div></li>
+    <li class="dim-item"><span class="dim-num">06</span><div><span class="dim-mech">Attentional Flow</span><div class="dim-title">The Eye Path</div><div class="dim-body">The eye follows a hierarchy determined by size, contrast and position. Does that sequence match the persuasion order — or is the creative working against itself?</div></div></li>
+    <li class="dim-item"><span class="dim-num">07</span><div><span class="dim-mech">Approach Motivation</span><div class="dim-title">The Pull</div><div class="dim-body">Desire is not need. Does this creative make the viewer want the product — or just understand it? Does reward anticipation activate before they finish reading?</div></div></li>
+    <li class="dim-item"><span class="dim-num">08</span><div><span class="dim-mech">Processing Fluency</span><div class="dim-title">The Weight</div><div class="dim-body">Working memory holds 3 to 4 pieces of information at scroll speed. Is the copy asking for more than the brain can hold — causing avoidance before conversion?</div></div></li>
+    <li class="dim-item"><span class="dim-num">09</span><div><span class="dim-mech">Credibility Assessment</span><div class="dim-title">The Proof</div><div class="dim-body">Every claim triggers an automatic credibility check. Are claims specific enough to be believed — or generic enough to be dismissed before the viewer is conscious of it?</div></div></li>
+    <li class="dim-item"><span class="dim-num">10</span><div><span class="dim-mech">Brand Imprint</span><div class="dim-title">The Ownership</div><div class="dim-body">Remove the logo. Does the brand still exist in the frame? A creative with no imprint could belong to any competitor. One with strong imprint is completely ownable.</div></div></li>
+  </ul>
+</section>
+
+<div class="divider"></div>
+
+<!-- BEFORE AFTER CAROUSEL — 5 slides -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">The transformation</span>
+    <h2 class="section-title">Diagnosis is the first step<br/><em>towards transformation.</em></h2>
+    <p class="section-sub">Once the kit did its job, we acted. Here is how:</p>
+  </div>
+  <div class="ba-carousel-wrap fu d1">
+    <div class="ba-carousel-track" id="baCarousel">
+
+      <div class="ba-slide">
+        <span class="ba-slide-label">SuperYou Pro</span>
+        <div class="ba-cols">
+          <div><span class="ba-col-head before">Before</span><div class="ba-img"><img src="superyou_plane_before.png" alt="Before"/></div></div>
+          <div><span class="ba-col-head after">After</span><div class="ba-img"><img src="superyou_plane_after.png" alt="After"/></div></div>
+        </div>
+      </div>
+
+      <div class="ba-slide">
+        <span class="ba-slide-label">Köppen</span>
+        <div class="ba-cols">
+          <div><span class="ba-col-head before">Before</span><div class="ba-img"><img src="koppen_before.png" alt="Before"/></div></div>
+          <div><span class="ba-col-head after">After</span><div class="ba-img"><img src="koppen_after.png" alt="After"/></div></div>
+        </div>
+      </div>
+
+      <div class="ba-slide">
+        <span class="ba-slide-label">IKEA India</span>
+        <div class="ba-cols">
+          <div><span class="ba-col-head before">Before</span><div class="ba-img"><img src="ikea_before.png" alt="Before"/></div></div>
+          <div><span class="ba-col-head after">After</span><div class="ba-img"><img src="ikea_after.png" alt="After"/></div></div>
+        </div>
+      </div>
+
+      <div class="ba-slide">
+        <span class="ba-slide-label">Groww</span>
+        <div class="ba-cols">
+          <div><span class="ba-col-head before">Before</span><div class="ba-img"><img src="groww_before.png" alt="Before"/></div></div>
+          <div><span class="ba-col-head after">After</span><div class="ba-img"><img src="groww_after.png" alt="After"/></div></div>
+        </div>
+      </div>
+
+      <div class="ba-slide">
+        <span class="ba-slide-label">Aisle</span>
+        <div class="ba-cols">
+          <div><span class="ba-col-head before">Before</span><div class="ba-img"><img src="aisle_before.png" alt="Before"/></div></div>
+          <div><span class="ba-col-head after">After</span><div class="ba-img"><img src="aisle_after.png" alt="After"/></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="ba-nav">
+      <button class="ba-btn" id="baPrev">←</button>
+      <div class="ba-dots">
+        <div class="ba-dot active"></div>
+        <div class="ba-dot"></div>
+        <div class="ba-dot"></div>
+        <div class="ba-dot"></div>
+        <div class="ba-dot"></div>
+      </div>
+      <button class="ba-btn" id="baNext">→</button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GUARANTEE -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">Our promise to you</span>
+    <h2 class="section-title">Buy once.<br/><em>Get everything. Forever.</em></h2>
+    <p class="section-sub">This is not a product that gets outdated. It is a framework built on human psychology. Every improvement we make is yours automatically.</p>
+  </div>
+  <div class="guarantee-grid fu d1">
+    <div class="guarantee-card">
+      <span class="guarantee-icon">♾️</span>
+      <div class="guarantee-title">Lifetime Updates — Automatically</div>
+      <div class="guarantee-body">Every time we improve the prompts, add new brand audits or update the benchmark data — you get it. No new purchase. No upgrade fee. Automatic.</div>
+    </div>
+    <div class="guarantee-card">
+      <span class="guarantee-icon">🧠</span>
+      <div class="guarantee-title">The Framework Never Goes Stale</div>
+      <div class="guarantee-body">Meta changes its algorithm. Creative formats change. Human psychology does not. The mechanisms this framework is built on are permanent — not platform trends that expire in six months.</div>
+    </div>
+    <div class="guarantee-card">
+      <span class="guarantee-icon">📈</span>
+      <div class="guarantee-title">New Audits Added Over Time</div>
+      <div class="guarantee-body">We are actively auditing new brands and new categories. Every new audit we publish gets added to the kit. All buyers get every one of them at no extra charge.</div>
+    </div>
+    <div class="guarantee-card">
+      <span class="guarantee-icon">⏳</span>
+      <div class="guarantee-title">Price Goes Up After 50 Purchases</div>
+      <div class="guarantee-body">The kit is Rs.4,599 right now. After the first 50 purchases the price increases. The price you pay today is locked in permanently — even after we raise it for everyone else.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CTR PROOF — full PDF sized placeholder -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">The proof</span>
+    <h2 class="section-title">Real campaigns.<br/><em>Real numbers.</em></h2>
+    <p class="section-sub">These are actual CTR results from campaigns diagnosed using this exact framework.</p>
+  </div>
+  <div class="fu d1" style="margin-top: 40px; background: var(--card); border: 1px solid var(--border); aspect-ratio: 1/1.414; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; display: flex; align-items: center; justify-content: center; position: relative;">
+    <div style="position: absolute; inset: 8px; border: 1px dashed rgba(200,200,194,0.08);"></div>
+    <img src="ctr_proofs.png" style="width:100%; height:100%; object-fit:contain; display:block;"/>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INCLUSIONS -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">What's inside</span>
+    <h2 class="section-title">Everything you need.<br/><em>Nothing you do not.</em></h2>
+  </div>
+  <ul class="inc-list fu d1">
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">The Creative Audit Prompt</div><div class="inc-desc">5-step performance diagnosis. Strategic layer, executional layer, business impact, public summary and caption metrics. Colour coded signals throughout.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">The Psychological Audit Prompt</div><div class="inc-desc">10 psychological signals scored out of 100. Evaluates your creative against documented mechanisms of human behaviour. The gap between your ad and the benchmark is your brief.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">Meta India Benchmark Data</div><div class="inc-desc">CTR ranges by objective across four performance tiers. Know what your number actually means before you judge it.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">Scoring Reference Sheet</div><div class="inc-desc">What every signal means for your CAC. What each score costs you in attention, desire or trust. Written for founders not creatives.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">4 Real Brand Audits</div><div class="inc-desc">SuperYou, Aisle, IKEA, WHOOP. Full comparative diagnoses with before and after. See exactly how the framework thinks before you run it on your own ads.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">Full Walkthrough Video</div><div class="inc-desc">End-to-end demonstration on a real ad. Watch once before your first audit.</div></div></li>
+    <li class="inc-item"><span class="inc-arrow">→</span><div><div class="inc-title">All Future Updates — Free</div><div class="inc-desc">Every new audit, every prompt improvement, every benchmark update. Yours automatically. Forever.</div></div></li>
+  </ul>
+</section>
+
+<div class="divider"></div>
+
+<!-- FINAL CTA -->
+<section class="section" id="buy">
+  <div class="fu" style="margin-bottom:0;">
+    <span class="eyebrow">Stop guessing. Start diagnosing.</span>
+    <h2 class="section-title">Your ads have a diagnosis.<br/><em>This kit finds it.</em></h2>
+  </div>
+  <div class="cta-card fu d1">
+    <div class="cta-card-title">The Ad Autopsy Kit</div>
+    <div class="cta-card-sub">by Vishal Joshi — Writturns</div>
+    <span class="cta-price">₹4,599</span>
+    <span class="cta-price-note">One time — Instant access</span>
+    <span class="cta-scarcity">Price goes up after 50 purchases. No exceptions.</span>
+    <ul class="cta-inc">
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>The Creative Audit Prompt</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>The Psychological Audit Prompt</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>Meta India Benchmark Data</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>Scoring Reference Sheet</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>4 Real Brand Audits with before and after</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>Full Walkthrough Video</span></li>
+      <li class="cta-inc-item"><span class="cta-dash">—</span><span>All Future Updates — Free</span></li>
+    </ul>
+    <a href="YOUR_TOPMATE_LINK" target="_blank" class="btn btn-yellow btn-full">Get the Ad Autopsy Kit</a>
+    <p class="cta-footer-note">You spend Rs.16,000 a day on ads. This costs Rs.4,599 once.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="fu">
+    <span class="eyebrow">FAQ</span>
+    <h2 class="section-title">Questions.</h2>
+  </div>
+  <ul class="faq-list fu d1">
+    <li class="faq-item">
+      <button class="faq-q">Do I need to know about creative strategy to use this?<span class="faq-icon"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">No. The prompts do the thinking. You provide the context inputs, upload your ad and read the output. The scoring reference sheet explains what every signal means in plain English. If you can read a dashboard you can use this kit.</div></div>
+    </li>
+    <li class="faq-item">
+      <button class="faq-q">Which AI does this work on?<span class="faq-icon"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">Claude Sonnet 4.6 or above. Built specifically for Claude's image analysis capability. Do not use it on ChatGPT — the output is structurally weaker on the signals that matter most.</div></div>
+    </li>
+    <li class="faq-item">
+      <button class="faq-q">How many ads can I audit with one purchase?<span class="faq-icon"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">Unlimited. One purchase. The prompts are yours to use on as many creatives as you want. Run each campaign in a fresh Claude conversation for the most accurate output — no more than 30 ads per session.</div></div>
+    </li>
+    <li class="faq-item">
+      <button class="faq-q">Does this guarantee my CTR will improve?<span class="faq-icon"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">No tool can guarantee a performance outcome. What this kit guarantees is clarity — you will know exactly what is broken in your creative and what to fix first. The prompts do the autopsy. You have to do the surgery.</div></div>
+    </li>
+    <li class="faq-item">
+      <button class="faq-q">Is this for Indian market ads only?<span class="faq-icon"></span></button>
+      <div class="faq-a"><div class="faq-a-inner">The psychological mechanisms are universal. Human psychology does not change between markets. The CTR benchmarks are calibrated for India. If you are running ads internationally the audit framework applies completely.</div></div>
+    </li>
+  </ul>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <span class="footer-brand">Writturns</span>
+  <span class="footer-copy">© 2026 Vishal Joshi. All rights reserved.</span>
+</footer>
+
+<script>
+  const fus = document.querySelectorAll('.fu');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  fus.forEach(el => io.observe(el));
+
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Before/After carousel
+  const baCarousel = document.getElementById('baCarousel');
+  const baDots = document.querySelectorAll('.ba-dot');
+  const baPrev = document.getElementById('baPrev');
+  const baNext = document.getElementById('baNext');
+  let baSlide = 0;
+  const baTotalSlides = 5;
+
+  function goToBaSlide(idx) {
+    baSlide = Math.max(0, Math.min(idx, baTotalSlides - 1));
+    baCarousel.scrollTo({ left: baSlide * baCarousel.offsetWidth, behavior: 'smooth' });
+    baDots.forEach((d, i) => d.classList.toggle('active', i === baSlide));
+  }
+
+  if (baCarousel) {
+    baCarousel.addEventListener('scroll', () => {
+      const idx = Math.round(baCarousel.scrollLeft / baCarousel.offsetWidth);
+      baSlide = idx;
+      baDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    });
+    baDots.forEach((d, i) => d.addEventListener('click', () => goToBaSlide(i)));
+    if (baPrev) baPrev.addEventListener('click', () => goToBaSlide(baSlide - 1));
+    if (baNext) baNext.addEventListener('click', () => goToBaSlide(baSlide + 1));
+  }
+</script>
+</body>
+</html>

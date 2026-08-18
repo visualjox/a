@@ -201,12 +201,29 @@
     footer { padding: 20px; flex-direction: column; gap: 8px; }
   }
 </style>
+  <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1327443215898804');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1327443215898804&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
 <nav>
   <a href="https://writturns.com" class="nav-brand">Writturns</a>
-  <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="nav-cta">Get Instant Access</a>
+  <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="nav-cta" onclick="fbq('track', 'InitiateCheckout');">Get Instant Access</a>
 </nav>
 
 <div class="counter-float">
@@ -221,7 +238,7 @@
     <h1 class="hero-headline">Stop wasting 70% of your ad budget on creatives that were broken before you launched them.</h1>
     <p class="hero-sub">A creative audit framework based on consumer psychology that tells you exactly why your creative is failing — inside 2 minutes.</p>
     <p class="hero-sub-note">(Before you spend any money on it)</p>
-    <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="btn btn-yellow">Get the Ad Autopsy Kit</a>
+    <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="btn btn-yellow" onclick="fbq('track', 'InitiateCheckout');">Get the Ad Autopsy Kit</a>
   </div>
 </section>
 
@@ -450,7 +467,7 @@
       <li class="cta-inc-item"><span class="cta-dash">—</span><span>Full Walkthrough Video</span></li>
       <li class="cta-inc-item"><span class="cta-dash">—</span><span>All Future Updates — Free</span></li>
     </ul>
-    <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="btn btn-yellow btn-full">Get the Ad Autopsy Kit</a>
+    <a href="https://topmate.io/admasterjojo/2249198" target="_blank" class="btn btn-yellow btn-full" onclick="fbq('track', 'InitiateCheckout');">Get the Ad Autopsy Kit</a>
     <p class="cta-footer-note">You spend Rs.16,000 a day on ads. This costs Rs.4,599 once.</p>
   </div>
 </section>
